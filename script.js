@@ -9,9 +9,9 @@ const elements = Object.fromEntries([
 ].map((name) => [name, document.getElementById(name)]));
 
 const levels = {
-  easy: { speed: 235, response: 3.2, ballSpeed: 350, hint: "Find your rhythm. A relaxed place to start." },
-  normal: { speed: 350, response: 4.8, ballSpeed: 420, hint: "A fair fight. A little focus goes a long way." },
-  hard: { speed: 470, response: 7, ballSpeed: 490, hint: "Quick reflexes required. Bring your A-game." }
+  easy: { speed: 235, response: 3.2, ballSpeed: 350, hint: "Slower ball. More time to line up a shot." },
+  normal: { speed: 350, response: 4.8, ballSpeed: 420, hint: "A quicker opponent, but still beatable." },
+  hard: { speed: 470, response: 7, ballSpeed: 490, hint: "Fast ball, fast opponent. Expect a few misses." }
 };
 const game = {
   width: canvas.width, height: canvas.height, state: "ready", difficulty: "normal",
@@ -82,7 +82,7 @@ function showOverlay(kicker, title, description, buttonText, shortcut) {
   elements.overlayKicker.textContent = kicker;
   elements.overlayTitle.textContent = title;
   elements.overlayDescription.textContent = description;
-  elements.startButton.innerHTML = `${buttonText} <span aria-hidden="true">↗</span>`;
+  elements.startButton.textContent = buttonText;
   elements.startShortcut.textContent = shortcut;
   elements.courtOverlay.hidden = false;
 }
@@ -109,8 +109,8 @@ function resetMatch() {
   elements.countdown.hidden = true;
   elements.pauseButton.disabled = true;
   setPauseLabel(false);
-  elements.matchStatus.textContent = "WAITING FOR YOUR FIRST SERVE";
-  showOverlay("A CLASSIC FOR A REASON", "Ready to rally?", `First to ${game.target}. Keep your eye on the ball.`, "Let's play", "or press Enter to start");
+  elements.matchStatus.textContent = "Ready when you are";
+  showOverlay("YOU VS. COMPUTER", "Your serve.", `First to ${game.target} points wins.`, "Start game", "or press Enter");
   updateStats();
   updateSettings();
 }
@@ -126,7 +126,7 @@ function startServe(direction, initial = false) {
   elements.countdown.textContent = initial ? "3" : "READY";
   elements.pauseButton.disabled = false;
   setPauseLabel(false);
-  elements.matchStatus.textContent = "GET READY TO RALLY";
+  elements.matchStatus.textContent = "Get ready";
   updateSettings();
 }
 
@@ -137,7 +137,7 @@ function launchBall() {
   ball.vy = speed * Math.sin(angle);
   game.state = "playing";
   elements.countdown.hidden = true;
-  elements.matchStatus.textContent = "MATCH IN PLAY";
+  elements.matchStatus.textContent = "Playing";
   playSound(520);
 }
 
@@ -147,7 +147,7 @@ function startOrResume() {
     elements.courtOverlay.hidden = true;
     elements.countdown.hidden = game.state !== "countdown";
     setPauseLabel(false);
-    elements.matchStatus.textContent = game.state === "countdown" ? "GET READY TO RALLY" : "MATCH IN PLAY";
+    elements.matchStatus.textContent = game.state === "countdown" ? "Get ready" : "Playing";
   } else if (game.state === "ready" || game.state === "finished") {
     resetMatch();
     startServe(Math.random() < 0.5 ? -1 : 1, true);
@@ -163,8 +163,8 @@ function pauseMatch() {
     game.keys.clear();
     elements.countdown.hidden = true;
     setPauseLabel(true);
-    showOverlay("TAKE A BREATHER", "Your court can wait.", "Same score. Same rivalry. Ready when you are.", "Resume match", "or press Space to continue");
-    elements.matchStatus.textContent = "MATCH PAUSED";
+    showOverlay("PAUSED", "Take your time.", "Your score stays right here.", "Resume game", "or press Space to continue");
+    elements.matchStatus.textContent = "Paused";
   }
 }
 
@@ -177,8 +177,8 @@ function scorePoint(player) {
     centerBall();
     elements.pauseButton.disabled = true;
     const won = game.leftScore >= game.target;
-    showOverlay(won ? "THAT'S YOUR GAME" : "A WORTHY OPPONENT", won ? "Well played, challenger." : "The rematch is yours.", `${game.leftScore} – ${game.rightScore}. ${won ? "A little skill. A lot of satisfaction." : "Every rally makes you better."}`, "Play again", "or press Enter for a rematch");
-    elements.matchStatus.textContent = won ? "MATCH COMPLETE · YOU WIN" : "MATCH COMPLETE · CPU WINS";
+    showOverlay("FINAL SCORE", won ? "You got it." : "Computer wins.", `${game.leftScore} – ${game.rightScore}. ${won ? "Fancy another round?" : "Want another go?"}`, "Play again", "or press Enter for a rematch");
+    elements.matchStatus.textContent = won ? "You win" : "Computer wins";
     updateSettings();
     elements.startButton.focus({ preventScroll: true });
   } else {
@@ -243,7 +243,7 @@ function update(delta) {
 
 function draw() {
   context.clearRect(0, 0, game.width, game.height);
-  context.strokeStyle = "#afc39816";
+  context.strokeStyle = "#e9dfcd30";
   context.lineWidth = 1;
   context.setLineDash([5, 11]);
   context.beginPath();
@@ -254,17 +254,17 @@ function draw() {
   context.beginPath();
   context.arc(game.width / 2, game.height / 2, 66, 0, Math.PI * 2);
   context.stroke();
-  context.fillStyle = "#c5e77b";
+  context.fillStyle = "#e2ad7d";
   context.fillRect(leftPaddle.x, leftPaddle.y, leftPaddle.width, leftPaddle.height);
-  context.fillStyle = "#adbd9b";
+  context.fillStyle = "#d4ccbc";
   context.fillRect(rightPaddle.x, rightPaddle.y, rightPaddle.width, rightPaddle.height);
   game.trail.forEach((point, index) => {
-    context.fillStyle = `rgba(197, 231, 123, ${index / game.trail.length * 0.13})`;
+    context.fillStyle = `rgba(226, 173, 125, ${index / game.trail.length * 0.13})`;
     context.beginPath();
     context.arc(point.x, point.y, ball.radius * index / game.trail.length, 0, Math.PI * 2);
     context.fill();
   });
-  context.fillStyle = "#e5eed8";
+  context.fillStyle = "#f4f0e8";
   context.beginPath();
   context.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
   context.fill();
@@ -302,7 +302,7 @@ document.querySelectorAll("[data-target]").forEach((button) => {
   button.addEventListener("click", () => {
     game.target = Number(button.dataset.target);
     updateSettings();
-    if (game.state === "ready") elements.overlayDescription.textContent = `First to ${game.target}. Keep your eye on the ball.`;
+    if (game.state === "ready") elements.overlayDescription.textContent = `First to ${game.target} points wins.`;
   });
 });
 
@@ -311,7 +311,7 @@ elements.fullscreenButton.addEventListener("click", async () => {
     if (document.fullscreenElement) await document.exitFullscreen();
     else await document.querySelector(".game-shell").requestFullscreen();
   } catch {
-    elements.matchStatus.textContent = "FULLSCREEN IS UNAVAILABLE IN THIS BROWSER";
+    elements.matchStatus.textContent = "Fullscreen isn’t available in this browser";
   }
 });
 if (!document.fullscreenEnabled) {

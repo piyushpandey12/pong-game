@@ -1,4 +1,4 @@
-# PONG — The original. Replayed.
+# Pong — a little browser game
 
 A responsive, single-player Pong arcade built with HTML, CSS, and JavaScript. No installation or build step is required: serve the project directory with any static web server.
 
